@@ -52,17 +52,17 @@ public class FTPUtility {
             ftpsClient.setFileType(FTPSClient.BINARY_FILE_TYPE);
 
             // File upload
-            String remoteFile = "/ftpFile.txt";
-            ClassPathResource resource = new ClassPathResource("ftpFile.txt");
+            String remoteFile = "/demo.xlsx";
+            ClassPathResource resource = new ClassPathResource("demo.xlsx");
 
             try (InputStream inputStream = resource.getInputStream()) {
                 done = ftpsClient.storeFile(remoteFile, inputStream);
             }
 
 
-            long fileSize = getFileSize(ftpsClient, "ftpFile.txt");
+            long fileSize = getFileSize(ftpsClient, "demo.xlsx");
             if(fileSize != 0) {
-                InputStream is = retrieveFileStream(ftpsClient, "ftpFile.txt");
+                InputStream is = retrieveFileStream(ftpsClient, "demo.xlsx");
                 byte[] fileBytes = downloadFile(is, fileSize);
                 if (fileBytes == null) return false;
             }
