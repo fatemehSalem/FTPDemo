@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  ftp:
+    image: stilliard/pure-ftpd:latest
+    container_name: ftp_server
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      - FTP_USER_NAME=samaUser
+      - FTP_USER_PASS=samaUser@123
+      - FTP_USER_HOME=/home/myuser
+      - TLS_CN=localhost
+      - TLS_ORG=MyOrganization
+      - TLS_C=US
+    volumes:
+      - C:/FTP:/home/myuser
+    command:
+      - /run.sh
+      - -l
+      - puredb:/etc/pure-ftpd/pureftpd.pdb
+      - -P
+      - localhost
+      - -p
+      - 30000:30009
+      - --tls=1

@@ -9,25 +9,61 @@ import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.util.TrustManagerUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.KeyManagementException;
+import java.security.cert.X509Certificate;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
 @Service
 public class FTPUtility {
-    private static final String SERVER = "127.0.0.1";
+    private static final String SERVER = "localhost";
     private static final int PORT = 21; // Default FTP port
     private static final String USER = "samaUser";
     private static final String PASSWORD = "samaUser@123";
 
+    public void uploadFileD() {
+        try {
+            TrustManager[] trustAllCertificates = new TrustManager[]{
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                        public X509Certificate[] getAcceptedIssuers() { return null; }
+                    }
+            };
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCertificates, new java.security.SecureRandom());
 
+            FTPSClient ftps = new FTPSClient(false);
+            ftps.setTrustManager(trustAllCertificates[0]);
+            ftps.connect(SERVER, PORT);
+            System.out.println("Connected to FTP server");
+            ftps.login(USER, PASSWORD);
+            System.out.println("Logged in");
+            ftps.execPBSZ(0);
+            ftps.execPROT("P");
+            ftps.enterLocalPassiveMode();
+            ftps.setFileType(FTPSClient.BINARY_FILE_TYPE);
+            System.out.println(ftps.getReplyString());
+            ftps.logout();
+            ftps.disconnect();
+            System.out.println("Disconnected");
+
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+    }
 
     public boolean uploadFile() {
+
         String protocol = "TLSv1.2";
-        FTPSClient ftpsClient = new FTPSClient(protocol, false);
+        FTPSClient ftpsClient = new FTPSClient( false);
         ftpsClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
         boolean done = false;
 

@@ -28,7 +28,6 @@ public class FtpController {
     public FtpController(FTPUtility ftpUtility) {
         this.ftpUtility = ftpUtility;
     }
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
     @PostMapping("/uploadFile")
     public String uploadFile(){
@@ -36,6 +35,13 @@ public class FtpController {
             return "success!";
         else
             return "fail!";
+    }
+
+
+    @PostMapping("/uploadFileD")
+    public String uploadFileD(){
+        ftpUtility.uploadFileD();
+        return "done!";
     }
 
     @GetMapping("/readFile")
@@ -61,12 +67,7 @@ public class FtpController {
                     Course course = new Course();
                     course.setId(dataFormatter.formatCellValue(row.getCell(0)));
                     course.setName(dataFormatter.formatCellValue(row.getCell(1)));
-                    try {
-                        course.setDob(sdf.parse(dataFormatter.formatCellValue(row.getCell(2))));
-                    } catch (ParseException e) {
-                        log.error(e.getMessage(), e);
-                    }
-                    course.setMark(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(3))));
+                    course.setMark(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(2))));
                     courses.add(course);
                 }
             });
