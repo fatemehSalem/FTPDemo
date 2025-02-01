@@ -28,8 +28,10 @@ public class FTPUtility {
     private static final String USER = "samaUser";
     private static final String PASSWORD = "samaUser@123";
 
-    public void uploadFileD() {
+    public boolean uploadFileD() {
+        boolean done = false;
         try {
+
             TrustManager[] trustAllCertificates = new TrustManager[]{
                     new X509TrustManager() {
                         public void checkClientTrusted(X509Certificate[] chain, String authType) {}
@@ -40,30 +42,68 @@ public class FTPUtility {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCertificates, new java.security.SecureRandom());
 
-            FTPSClient ftps = new FTPSClient(false);
-            ftps.setTrustManager(trustAllCertificates[0]);
+
+            FTPSClient ftps = new FTPSClient("TLS", false);
+          //  ftps.setTrustManager(trustAllCertificates[0]);
+            ftps.setTrustManager(TrustManagerUtils.getAcceptAllTrustManager());
+            ftps.setRemoteVerificationEnabled(false);
+            ftps.setEnabledSessionCreation(true);
+
+
             ftps.connect(SERVER, PORT);
             System.out.println("Connected to FTP server");
+
             ftps.login(USER, PASSWORD);
             System.out.println("Logged in");
+
+
+
             ftps.execPBSZ(0);
             ftps.execPROT("P");
             ftps.enterLocalPassiveMode();
             ftps.setFileType(FTPSClient.BINARY_FILE_TYPE);
             System.out.println(ftps.getReplyString());
+
+
+            String remoteFile = "/home/myuser/ftpFile.txt";
+
+            ClassPathResource resource = new ClassPathResource("ftpFile.txt");
+
+            ftps.printWorkingDirectory();
+
+            try (InputStream inputStream = resource.getInputStream()) {
+                boolean success = ftps.storeFile(remoteFile, inputStream);
+                System.out.println("Upload success: " + success + " Reply: " + ftps.getReplyString());
+            }
+
+            long fileSize = getFileSize(ftps, "demo.xlsx");
+            if(fileSize != 0) {
+                InputStream is = retrieveFileStream(ftps, "demo.xlsx");
+                byte[] fileBytes = downloadFile(is, fileSize);
+                if (fileBytes == null) return false;
+            }
+            if (done) {
+                System.out.println("File uploaded successfully.");
+            } else {
+                System.out.println("Failed to upload the file.");
+            }
+
             ftps.logout();
             ftps.disconnect();
             System.out.println("Disconnected");
 
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+        return done;
     }
 
     public boolean uploadFile() {
 
         String protocol = "TLSv1.2";
-        FTPSClient ftpsClient = new FTPSClient( false);
+        FTPSClient ftpsClient = new FTPSClient( protocol,false);
         ftpsClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
         boolean done = false;
 
@@ -96,12 +136,12 @@ public class FTPUtility {
             }
 
 
-            long fileSize = getFileSize(ftpsClient, "demo.xlsx");
+        /*    long fileSize = getFileSize(ftpsClient, "demo.xlsx");
             if(fileSize != 0) {
                 InputStream is = retrieveFileStream(ftpsClient, "demo.xlsx");
                 byte[] fileBytes = downloadFile(is, fileSize);
                 if (fileBytes == null) return false;
-            }
+            }*/
             if (done) {
                 System.out.println("File uploaded successfully.");
             } else {

@@ -14,7 +14,7 @@ services:
       - TLS_ORG=MyOrganization
       - TLS_C=US
     volumes:
-      - C:/FTP:/home/myuser
+      - /home/myuser:/home/myuser
     command:
       - /run.sh
       - -l
