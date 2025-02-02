@@ -40,8 +40,39 @@ public class FtpController {
 
     @PostMapping("/uploadFileD")
     public String uploadFileD(){
-        ftpUtility.uploadFileD();
-        return "done!";
+        if(ftpUtility.uploadFileD())
+            return "success!";
+        else
+            return "fail!";
+    }
+
+    @PostMapping("/checkFTP")
+    public void checkFTP(){
+        FtpClientManager ftpManager = new FtpClientManager();
+        try {
+            // Connect to FTP server
+            ftpManager.connect("localhost", 21, "samaUser", "samaUser@123");
+
+            // Upload a file
+          //  ftpManager.uploadFile("C:/Users/myuser/demo.xlsx", "demo.xlsx");
+
+            // Get file size
+          //  ftpManager.getFileSize("demo.xlsx");
+
+            // List files in root directory
+          //  ftpManager.listFiles("/");
+
+            // Download a file
+            ftpManager.downloadFile("sima_MELI_sale_14031112.csv");
+
+            // Delete a file
+            ftpManager.deleteFile("demo.xlsx");
+
+            // Disconnect
+            ftpManager.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @GetMapping("/readFile")

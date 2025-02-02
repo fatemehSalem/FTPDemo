@@ -43,9 +43,9 @@ public class FTPUtility {
             sslContext.init(null, trustAllCertificates, new java.security.SecureRandom());
 
 
-            FTPSClient ftps = new FTPSClient("TLS", false);
-          //  ftps.setTrustManager(trustAllCertificates[0]);
-            ftps.setTrustManager(TrustManagerUtils.getAcceptAllTrustManager());
+            FTPSClient ftps = new FTPSClient();
+           ftps.setTrustManager(trustAllCertificates[0]);
+          //  ftps.setTrustManager(TrustManagerUtils.getAcceptAllTrustManager());
             ftps.setRemoteVerificationEnabled(false);
             ftps.setEnabledSessionCreation(true);
 
@@ -65,23 +65,23 @@ public class FTPUtility {
             System.out.println(ftps.getReplyString());
 
 
-            String remoteFile = "/home/myuser/ftpFile.txt";
+            String remoteFile = "demo.xlsx";
 
-            ClassPathResource resource = new ClassPathResource("ftpFile.txt");
+            ClassPathResource resource = new ClassPathResource("demo.xlsx");
 
             ftps.printWorkingDirectory();
 
             try (InputStream inputStream = resource.getInputStream()) {
-                boolean success = ftps.storeFile(remoteFile, inputStream);
-                System.out.println("Upload success: " + success + " Reply: " + ftps.getReplyString());
+                done = ftps.storeFile(remoteFile, inputStream);
+                System.out.println("Upload success: " + done + " Reply: " + ftps.getReplyString());
             }
 
-            long fileSize = getFileSize(ftps, "demo.xlsx");
+          /*  long fileSize = getFileSize(ftps, "demo.xlsx");
             if(fileSize != 0) {
                 InputStream is = retrieveFileStream(ftps, "demo.xlsx");
                 byte[] fileBytes = downloadFile(is, fileSize);
                 if (fileBytes == null) return false;
-            }
+            }*/
             if (done) {
                 System.out.println("File uploaded successfully.");
             } else {

@@ -1,4 +1,7 @@
 version: '3.8'
+networks:
+  sadad_linux_network:
+    external: true
 services:
   ftp:
     image: stilliard/pure-ftpd:latest
